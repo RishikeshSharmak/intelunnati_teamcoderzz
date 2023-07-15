@@ -1,0 +1,15 @@
+The code begins by declaring a module named OnlineBillingPaymentSystemFSM. It takes several inputs, including clk (clock signal), reset (reset signal), billAmount (the amount of the bill), and paymentAmount (the payment amount). It also has an output signal paymentSuccess indicating whether the payment is successful or not.
+The code defines three states: IDLE, PAYMENT_PROCESSING, and PAYMENT_SUCCESS. These states are defined using localparam to assign binary values to them.
+The code declares two registers: currentState is a 2-bit register to hold the current state of the FSM, and remainingAmount is an 8-bit register to track the remaining amount to be paid.
+The code uses an always block sensitive to the positive edge of the clock (clk) and the reset signal (reset). It describes the state transitions and actions for each state using a case statement.
+If reset is asserted, the FSM resets to the IDLE state, and the remainingAmount is set to 0.
+In the IDLE state, if the payment amount (paymentAmount) is greater than or equal to the bill amount (billAmount), the FSM transitions to the PAYMENT_PROCESSING state, and the remainingAmount is updated with the difference between the payment amount and the bill amount.
+In the PAYMENT_PROCESSING state, the FSM transitions to the PAYMENT_SUCCESS state, indicating a successful payment. The remainingAmount is set to 0.
+In the PAYMENT_SUCCESS state, the FSM transitions back to the IDLE state.
+If none of the defined cases match, the FSM defaults to the IDLE state and sets the remainingAmount to 0.
+The paymentSuccess signal is assigned 1 if the current state is PAYMENT_SUCCESS, indicating a successful payment.
+The code includes a Testbench module to simulate and test the FSM implementation. It instantiates the OnlineBillingPaymentSystemFSM module and provides test scenarios to observe the output behavior.
+The test scenarios include setting the billAmount and paymentAmount variables and displaying the corresponding values of billAmount, paymentAmount, and paymentSuccess using the $display statement.
+The initial block sets the initial values, performs the test scenarios, and advances the simulation time using delay statements (#) to observe the output at different time intervals.
+The always block toggles the clk signal every 5 time units to simulate a clock signal.
+That's a step-by-step explanation of the code. It defines an FSM-based implementation of an online billing payment system using Verilog HDL and includes a testbench to verify the behavior of the FSM.
