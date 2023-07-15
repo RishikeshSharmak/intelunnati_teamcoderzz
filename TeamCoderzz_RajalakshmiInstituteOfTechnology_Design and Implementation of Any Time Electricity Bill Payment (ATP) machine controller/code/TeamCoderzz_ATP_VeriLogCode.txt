@@ -1,0 +1,105 @@
+//TeamCoderzz
+//Design and Implementation of Any Time Electricity Bill Payment (ATP) machine controller
+
+module OnlineBillingPaymentSystemFSM (
+  input wire clk,
+  input wire reset,
+  input wire [7:0] billAmount,
+  input wire [7:0] paymentAmount,
+  output wire paymentSuccess
+);
+
+  // Define the states
+  localparam IDLE = 2'b00;
+  localparam PAYMENT_PROCESSING = 2'b01;
+  localparam PAYMENT_SUCCESS = 2'b10;
+  
+  reg [1:0] currentState;
+  reg [7:0] remainingAmount;
+
+  always @(posedge clk or posedge reset) begin
+    if (reset) begin
+      currentState <= IDLE;
+      remainingAmount <= 0;
+    end else begin
+      case (currentState)
+        IDLE: begin
+          if (paymentAmount >= billAmount) begin
+            currentState <= PAYMENT_PROCESSING;
+            remainingAmount <= paymentAmount - billAmount;
+          end
+        end
+        PAYMENT_PROCESSING: begin
+          currentState <= PAYMENT_SUCCESS;
+          remainingAmount <= 0;
+        end
+        PAYMENT_SUCCESS: begin
+          currentState <= IDLE;
+        end
+        default: begin
+          currentState <= IDLE;
+          remainingAmount <= 0;
+        end
+      endcase
+    end
+  end
+
+  assign paymentSuccess = (currentState == PAYMENT_SUCCESS);
+
+endmodule
+
+module Testbench;
+  reg clk;
+  reg reset;
+  reg [7:0] billAmount;
+  reg [7:0] paymentAmount;
+  wire paymentSuccess;
+
+  OnlineBillingPaymentSystemFSM dut (
+    .clk(clk),
+    .reset(reset),
+    .billAmount(billAmount),
+    .paymentAmount(paymentAmount),
+    .paymentSuccess(paymentSuccess)
+  );
+
+  initial begin
+    clk = 0;
+    reset = 1;
+    billAmount = 100; // Set the bill amount here
+    paymentAmount = 100; // Set the payment amount here
+
+    #10 reset = 0;
+
+    // Payment successful
+    paymentAmount = 100;
+    #10 $display("Bill Amount: %d, Payment Amount: %d, Payment Success: %b", billAmount, paymentAmount, paymentSuccess);
+
+    // Insufficient payment
+    paymentAmount = 50;
+    #10 $display("Bill Amount: %d, Payment Amount: %d, Payment Success: %b", billAmount, paymentAmount, paymentSuccess);
+
+    // Payment exceeds the bill amount
+    paymentAmount = 150;
+    #10 $display("Bill Amount: %d, Payment Amount: %d, Payment Success: %b", billAmount, paymentAmount, paymentSuccess);
+
+    // Zero payment
+    paymentAmount = 0;
+    #10 $display("Bill Amount: %d, Payment Amount: %d, Payment Success: %b", billAmount, paymentAmount, paymentSuccess);
+
+    // Reset the system
+    reset = 1;
+    #10 reset = 0;
+
+    // Payment after reset
+    paymentAmount = 100;
+    #10 $display("Bill Amount: %d, Payment Amount: %d, Payment Success: %b", billAmount, paymentAmount, paymentSuccess);
+
+    $finish;
+  end
+
+  always begin
+    #5 clk = ~clk;
+  end
+
+endmodule
